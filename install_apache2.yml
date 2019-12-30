@@ -1,0 +1,14 @@
+---
+- name: install apache2 on ubuntu server
+  hosts: dbservers
+  become: true
+  tasks:
+  - name: install apache2
+    apt: 
+      name: apache2
+      state: present
+
+  - name: start apache2
+    service: 
+      name: apache2
+      state: started 

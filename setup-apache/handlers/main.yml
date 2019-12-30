@@ -1,0 +1,21 @@
+---
+# handlers file for setup-apache
+- name: start apache
+  service:
+    name: httpd
+    state: started
+
+- name: start apache2
+  service:
+    name: apache2
+    state: started
+
+- name: restart apache
+  service:
+    name: httpd
+    state: restarted
+
+- name: restart apache2
+  service:
+    name: apache2
+    state: restarted

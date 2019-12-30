@@ -1,0 +1,65 @@
+---
+- name: this playbook install httpd
+  hosts: all
+  become: true
+  vars:
+    port: 8082 
+  tasks:
+  - name: install package
+    yum:
+      name: httpd
+      state: installed
+    when: ansible_os_family == "RedHat"
+    notify: start apache
+  
+  - name: install apache2
+    apt:
+      name: apache2
+      state: present
+    when: ansible_os_family == "Debian"
+    notify: start apache2
+
+  - name: copy index.html
+    copy:
+      src: /opt/ansible/index.html
+      dest: /var/www/html
+      mode: 0666
+
+  - name: Ensure the default Apache port is {{ port }}
+    lineinfile:
+      path: /etc/httpd/conf/httpd.conf
+      regexp: '^Listen '
+      insertafter: '^#Listen '
+      line: Listen {{ port }}
+    when: ansible_os_family == "RedHat"
+    notify: restart apache
+
+  - name: Ensure the default Apache port is {{ port }} on ubuntu
+    lineinfile:
+      path: /etc/apache2/ports.conf
+      regexp: '^Listen '
+      insertafter: "# /etc/apache2/sites-enabled/000-default.conf"
+      line: Listen {{ port }}
+    when: ansible_os_family == "Debian"
+    notify: restart apache2
+
+  handlers:
+  - name: start apache
+    service:
+      name: httpd
+      state: started
+
+  - name: start apache2
+    service:
+      name: apache2
+      state: started
+  
+  - name: restart apache
+    service:
+      name: httpd
+      state: restarted 
+
+  - name: restart apache2
+    service:
+      name: apache2
+      state: restarted
